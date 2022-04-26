@@ -144,7 +144,7 @@ class Play extends Phaser.Scene{
 
         // game over
         if(gameOver){
-            //this.scene.start("Play");
+            this.scene.start("Play");
         }
 
         // NPC's position on the screen
