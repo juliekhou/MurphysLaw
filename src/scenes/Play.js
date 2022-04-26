@@ -84,22 +84,22 @@ class Play extends Phaser.Scene{
         this.physics.add.collider(this.player, this.platformGroup);
 
         //TODO rewrite
-        this.drop = 3000;
-        this.pot1;
-        this.potClock = this.time.addEvent({
-            delay: this.drop,
-            callback: () => {
-                    this.pot1 = new FlowerPot(this, 500, 0, 'player', 0).setOrigin(0,0);
-                    this.pot1.setGravityY(250);
-                    this.pot1.setVelocityX(-150);
-                    this.pot1.setInteractive();
-                    //checking for input
-                    this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
-                    this.physics.add.overlap(this.player, this.pot1, this.hitPot);
-                },
-            callbackScope: this,
-            loop: true
-        });
+        // this.drop = 3000;
+        // this.pot1;
+        // this.potClock = this.time.addEvent({
+        //     delay: this.drop,
+        //     callback: () => {
+        //             this.pot1 = new FlowerPot(this, 500, 0, 'player', 0).setOrigin(0,0);
+        //             this.pot1.setGravityY(250);
+        //             this.pot1.setVelocityX(-150);
+        //             this.pot1.setInteractive();
+        //             //checking for input
+        //             this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
+        //             this.physics.add.overlap(this.player, this.pot1, this.hitPot);
+        //         },
+        //     callbackScope: this,
+        //     loop: true
+        // });
 
         // display score
         let scoreConfig = {
@@ -115,12 +115,23 @@ class Play extends Phaser.Scene{
             fixedWidth: 0
         }
         // initialize score
-        this.days = 0;
-        this.scoreLeft = this.add.text(0, 50, "Days Survived: " + this.days, scoreConfig);
+        this.day = 0;
+        this.scoreLeft = this.add.text(0, 50, "Days Survived: " + this.day, scoreConfig);
         
         // days survived clock
-        this.day = 30000;
-        this.clock = this.time.addEvent({delay: this.day, callback: () => {this.days += 1;}, callbackScope: this, loop: true});
+        this.dayLength = 10000;
+        this.clock = this.time.addEvent({delay: this.dayLength, callback: () => {this.day += 1;}, callbackScope: this, loop: true});
+
+        // days survived clock
+        this.second = 1000;
+        this.timer = 0;
+        this.spawnRate1 = 3;
+        this.lastSpawnTime1 = 0;
+        this.spawnRate2 = 10;
+        this.lastSpawnTime2 = 0;
+        this.spawnRate3 = 15;
+        this.lastSpawnTime3 = 0;
+        this.clock = this.time.addEvent({delay: this.second, callback: this.spawnPot, callbackScope: this, loop: true});
     }
 
     update(){
@@ -129,11 +140,11 @@ class Play extends Phaser.Scene{
         this.background.tilePositionX += 2;
 
         // display score
-        this.scoreLeft.text = "Days Survived: " + this.days;
+        this.scoreLeft.text = "Days Survived: " + this.day;
 
         // game over
         if(gameOver){
-            this.scene.start("Play");
+            //this.scene.start("Play");
         }
 
         // NPC's position on the screen
@@ -163,6 +174,74 @@ class Play extends Phaser.Scene{
     // function for player collision with flower pot
     hitPot(){
         gameOver = true;
+    }
+
+    spawnPot(){
+        this.timer += 1;
+
+        // pot 1
+        this.spawnRateMax1 = 8;
+        this.spawnRateMin1 = 4;
+
+        
+        if((this.timer - this.lastSpawnTime1) == this.spawnRate1){
+            this.pot1 = new FlowerPot(this, 500, 0, 'player', 0).setOrigin(0,0);
+            //checking for input
+            this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
+            this.physics.add.overlap(this.player, this.pot1, this.hitPot);
+            this.pot1.setGravityY(250);
+            this.pot1.setVelocityX(-150);
+            this.pot1.setInteractive();
+            this.lastSpawnTime1 = this.timer;
+
+            if(this.day < 0){
+                this.spawnRate1 = 3;
+            } else {
+                this.pot1Chance =  Math.ceil(Math.random() * this.day);
+                this.spawnRate1 = Math.max(this.spawnRateMax1 - this.pot1Chance, this.spawnRateMin1);
+            }
+        }
+
+        // pot 2
+        this.spawnRateMax2 = 6;
+        this.spawnRateMin2 = 3;
+        
+        if((this.timer - this.lastSpawnTime2) == this.spawnRate2){
+            this.pot2 = new FlowerPot(this, 800, 0, 'player', 0).setOrigin(0,0);
+            //checking for input
+            this.pot2.on('pointerdown', (pointer)=> {this.clickPot(this.pot2, pointer)});
+            this.physics.add.overlap(this.player, this.pot2, this.hitPot);
+            this.pot2.setGravityY(200);
+            this.pot2.setVelocityX(-250);
+            this.pot2.setInteractive();
+            this.lastSpawnTime2 = this.timer;
+
+            if(this.day > 1){
+                this.pot2Chance =  Math.ceil(Math.random() * this.day);
+                this.spawnRate2 = Math.max(this.spawnRateMax2 - this.pot2Chance, this.spawnRateMin2);
+            }
+        }
+
+        // pot 3
+        this.spawnRateMax3 = 6;
+        this.spawnRateMin3 = 3;
+        
+        if((this.timer - this.lastSpawnTime3) == this.spawnRate3){
+            this.pot3 = new FlowerPot(this, 1200, 0, 'player', 0).setOrigin(0,0);
+            //checking for input
+            this.pot3.on('pointerdown', (pointer)=> {this.clickPot(this.pot3, pointer)});
+            this.physics.add.overlap(this.player, this.pot3, this.hitPot);
+            this.pot3.setGravityY(200);
+            this.pot3.setVelocityX(-410);
+            this.pot3.setInteractive();
+            this.lastSpawnTime3 = this.timer;
+
+            if(this.day > 2){
+                this.pot3Chance =  Math.ceil(Math.random() * this.day);
+                this.spawnRate3 = Math.max(this.spawnRateMax3 - this.pot3Chance, this.spawnRateMin3);
+            }
+        }
+        
     }
 };
 
