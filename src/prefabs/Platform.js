@@ -4,8 +4,6 @@ class Platform extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, texture, frame);
         scene.physics.add.existing(this); // add this line
         scene.add.existing(this);   // add to existing scene
-        // this.points = pointValue;   // store pointValue
-        // this.moveSpeed = game.settings.spaceshipSpeed;         // pixels per frame
         this.moveSpeed = 2;         // pixels per frame
     }
 

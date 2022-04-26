@@ -1,79 +1,40 @@
 // global game options
+// move this to menu.js
 let gameOptions = {
-    platformStartSpeed: 350,
-    spawnRange: [100, 350],
-    platformSizeRange: [50, 250],
     playerGravity: 900,
-    jumpForce: 400,
-    playerStartPosition: 200,
-    jumps: 2
+    playerStartPosition: 200
 }
 
 let gameOver = false;
 
-// window.onload = function() {
 
-//     // object containing configuration options
-//     let gameConfig = {
-//         type: Phaser.AUTO,
-//         width: 1334,
-//         height: 750,
-//         scene: playGame,
-//         backgroundColor: 0x444444,
-
-//         // physics settings
-//         physics: {
-//             default: "arcade"
-//         }
-//     }
-//     game = new Phaser.Game(gameConfig);
-//     window.focus();
-//     resize();
-//     window.addEventListener("resize", resize, false);
-// }
-
-// playGame scene
+// play game scene
 class Play extends Phaser.Scene{
     constructor(){
         super("Play");
     }
     preload(){
+        // load images
         this.load.image("platform", "./assets/platform.png");
         this.load.image("player", "./assets/player.png");
         this.load.image("background", "./assets/background.png");
+
+        //load sounds
     }
     create(){
-
+        // variable for game over state
         gameOver = false;
 
         // background
-        this.background = this.add.tileSprite(0, 0, 1280, 960, 'background').setOrigin(0, 0);
+        this.background = this.add.tileSprite(0, -240, 1280, 960, 'background').setOrigin(0, 0);
 
-        // group with all active platforms.
-        this.platformGroup = this.add.group({
-
-            // once a platform is removed, it's added to the pool
-            removeCallback: function(platform){
-                platform.scene.platformPool.add(platform)
-            }
-        });
-
-        // pool
-        this.platformPool = this.add.group({
-
-            // once a platform is removed from the pool, it's added to the active platforms group
-            removeCallback: function(platform){
-                platform.scene.platformGroup.add(platform)
-            }
-        });
-
-        // number of consecutive jumps made by the player (for double jump)
-        this.playerJumps = 0;
+        // // group with all active platforms.
+        this.platformGroup = this.add.group({});
 
         // adding a platform to the game, the arguments are platform width and x position
         // this.addPlatform(game.config.width, game.config.width / 2);
         this.platformWidth = 105;
-        this.platformHeight = 960 - 77;
+        this.platformHeight = 720 - 77;
         this.platform1 = new Platform(this, 0, this.platformHeight, 'platform', 0).setOrigin(0,0);
         this.platform1.setImmovable(true);
         this.platform2 = new Platform(this, this.platformWidth, this.platformHeight, 'platform', 0).setOrigin(0,0);
@@ -122,13 +83,7 @@ class Play extends Phaser.Scene{
         // setting collisions between the player and the platform group
         this.physics.add.collider(this.player, this.platformGroup);
 
-        // flower pot stuff
-        // this.pot1 = new FlowerPot(this, 500, 0, 'player', 0).setOrigin(0,0);
-        // this.pot1.setGravityY(250);
-        // this.pot1.setInteractive();
-        // this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
-        // this.physics.add.overlap(this.player, this.pot1, this.hitPot);
-
+        //TODO rewrite
         this.drop = 3000;
         this.pot1;
         this.potClock = this.time.addEvent({
@@ -136,8 +91,9 @@ class Play extends Phaser.Scene{
             callback: () => {
                     this.pot1 = new FlowerPot(this, 500, 0, 'player', 0).setOrigin(0,0);
                     this.pot1.setGravityY(250);
-                    this.pot1.setVelocityX(-125);
+                    this.pot1.setVelocityX(-150);
                     this.pot1.setInteractive();
+                    //checking for input
                     this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
                     this.physics.add.overlap(this.player, this.pot1, this.hitPot);
                 },
@@ -145,11 +101,6 @@ class Play extends Phaser.Scene{
             loop: true
         });
 
-        // checking for input
-        this.input.on("pointerdown", this.jump, this);
-
-        //initialize score
-        this.p1Score = 0;
         // display score
         let scoreConfig = {
             fontFamily: 'Courier',
@@ -163,74 +114,32 @@ class Play extends Phaser.Scene{
             },
             fixedWidth: 0
         }
-        this.scoreLeft = this.add.text(0, 100, "Days Survived: " + this.p1Score, scoreConfig);
+        // initialize score
+        this.days = 0;
+        this.scoreLeft = this.add.text(0, 50, "Days Survived: " + this.days, scoreConfig);
         
         // days survived clock
         this.day = 30000;
-        this.clock = this.time.addEvent({delay: this.day, callback: () => {this.p1Score += 1;}, callbackScope: this, loop: true});
+        this.clock = this.time.addEvent({delay: this.day, callback: () => {this.days += 1;}, callbackScope: this, loop: true});
     }
-
-    // the core of the script: platform are added from the pool or created on the fly
-    // addPlatform(platformWidth, posX){
-    //     let platform;
-    //     if(this.platformPool.getLength()){
-    //         platform = this.platformPool.getFirst();
-    //         platform.x = posX;
-    //         platform.active = true;
-    //         platform.visible = true;
-    //         this.platformPool.remove(platform);
-    //     }
-    //     else{
-    //         platform = this.physics.add.sprite(posX, game.config.height * 0.8, "platform");
-    //         platform.setImmovable(true);
-    //         platform.setVelocityX(gameOptions.platformStartSpeed * -1);
-    //         this.platformGroup.add(platform);
-    //     }
-    //     platform.displayWidth = platformWidth;
-    //     this.nextPlatformDistance = Phaser.Math.Between(gameOptions.spawnRange[0], gameOptions.spawnRange[1]);
-    // }
-
-    // the player jumps when on the ground, or once in the air as long as there are jumps left and the first jump was on the ground
-    jump(){
-        // if(this.player.body.touching.down || (this.playerJumps > 0 && this.playerJumps < gameOptions.jumps)){
-        //     if(this.player.body.touching.down){
-        //         this.playerJumps = 0;
-        //     }
-        //     this.player.setVelocityY(gameOptions.jumpForce * -1);
-        //     this.playerJumps ++;
-        // }
-    }
-
-    clickPot(pot, pointer){
-        console.log("hit");
-        pot.destroy();
-    }
-
-    hitPot(){
-        gameOver = true;
-    }
-
 
     update(){
 
         // move background
         this.background.tilePositionX += 2;
 
-        // if (this.timeR%3 == 0){
-        //     this.p1Score += 1;
-            this.scoreLeft.text = "Days Survived: " + this.p1Score;
-        // }
+        // display score
+        this.scoreLeft.text = "Days Survived: " + this.days;
 
         // game over
         if(gameOver){
             this.scene.start("Play");
         }
-        // if(this.player.y > game.config.height){
-        //     this.scene.start("Play");
-        // }
 
+        // NPC's position on the screen
         this.player.x = gameOptions.playerStartPosition;
 
+        // move platforms
         this.platform1.update();
         this.platform2.update();
         this.platform3.update();
@@ -244,39 +153,16 @@ class Play extends Phaser.Scene{
         this.platform11.update();
         this.platform12.update();
         this.platform13.update();
+    }
 
-        // this.pot1.update();
+    // function for clicking a flower pot
+    clickPot(pot, pointer){
+        pot.destroy();
+    }
 
-        // recycling platforms
-        // let minDistance = game.config.width;
-        // this.platformGroup.getChildren().forEach(function(platform){
-        //     let platformDistance = game.config.width - platform.x - platform.displayWidth / 2;
-        //     minDistance = Math.min(minDistance, platformDistance);
-        //     if(platform.x < - platform.displayWidth / 2){
-        //         this.platformGroup.killAndHide(platform);
-        //         this.platformGroup.remove(platform);
-        //     }
-        // }, this);
-
-        // // adding new platforms
-        // if(minDistance > this.nextPlatformDistance){
-        //     var nextPlatformWidth = Phaser.Math.Between(gameOptions.platformSizeRange[0], gameOptions.platformSizeRange[1]);
-        //     this.addPlatform(nextPlatformWidth, game.config.width + nextPlatformWidth / 2);
-        // }
+    // function for player collision with flower pot
+    hitPot(){
+        gameOver = true;
     }
 };
-// function resize(){
-//     let canvas = document.querySelector("canvas");
-//     let windowWidth = window.innerWidth;
-//     let windowHeight = window.innerHeight;
-//     let windowRatio = windowWidth / windowHeight;
-//     let gameRatio = game.config.width / game.config.height;
-//     if(windowRatio < gameRatio){
-//         canvas.style.width = windowWidth + "px";
-//         canvas.style.height = (windowWidth / gameRatio) + "px";
-//     }
-//     else{
-//         canvas.style.width = (windowHeight * gameRatio) + "px";
-//         canvas.style.height = windowHeight + "px";
-//     }
-// }
+
