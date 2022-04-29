@@ -16,8 +16,10 @@ class Play extends Phaser.Scene{
     preload(){
         // load images
         this.load.image("platform", "./assets/platform.png");
-        this.load.image("player", "./assets/player.png");
         this.load.image("pot", "./assets/flowerPot.png");
+
+        this.load.spritesheet('player', './assets/player.png', {frameWidth: 50, frameHeight: 120, startFrame: 0, endFrame: 7});
+        this.load.spritesheet('angel', './assets/angel.png', {frameWidth: 64, frameHeight: 64, startFrame: 0, endFrame: 1});
 
         //load sounds
     }
@@ -32,7 +34,6 @@ class Play extends Phaser.Scene{
         this.platformGroup = this.add.group({});
 
         // adding a platform to the game, the arguments are platform width and x position
-        // this.addPlatform(game.config.width, game.config.width / 2);
         this.platformWidth = 105;
         this.platformHeight = 720 - 77;
         this.platform1 = new Platform(this, 0, this.platformHeight, 'platform', 0).setOrigin(0,0);
@@ -77,8 +78,21 @@ class Play extends Phaser.Scene{
         this.platformGroup.add(this.platform13);
 
         // adding the player;
-        this.player = this.physics.add.sprite(gameOptions.playerStartPosition, game.config.height / 2, "player");
-        this.player.setGravityY(gameOptions.playerGravity);
+        this.player = this.physics.add.sprite(gameOptions.playerStartPosition, this.platformHeight - 55, "player");
+        //this.player.setGravityY(gameOptions.playerGravity);
+
+        this.anims.create({
+            key: 'walk',
+            frames: this.anims.generateFrameNumbers('player', { start: 0, end: 7, first: 0}),
+            frameRate: 10
+        });
+
+        this.angel = this.physics.add.sprite(400, 300, 'angel');
+        this.input.on('pointermove', (pointer)=>
+            {
+                this.physics.moveToObject(this.angel, pointer, 300);
+            });
+
 
         // setting collisions between the player and the platform group
         this.physics.add.collider(this.player, this.platformGroup);
@@ -117,9 +131,11 @@ class Play extends Phaser.Scene{
     }
 
     update(){
-
+        // this.physics.moveToObject(game.angel, this.pointer, 300);
         // move background
         this.background.tilePositionX += 2;
+
+        this.player.anims.play('walk', true);
 
         // display score
         this.scoreLeft.text = "Days Survived: " + this.day;
