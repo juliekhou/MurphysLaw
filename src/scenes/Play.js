@@ -93,11 +93,15 @@ class Play extends Phaser.Scene{
             frameRate: 10
         });
 
+        this.pointerX;
+        this.pointerY;
+
         this.angel = this.physics.add.sprite(400, 300, 'angel');
-        this.input.on('pointermove', (pointer)=>
-            {
-                this.physics.moveToObject(this.angel, pointer, 300);
-            });
+        this.input.on('pointerdown', (pointer)=> {
+                this.physics.moveToObject(this.angel, pointer, 550);
+                this.pointerX = pointer.x;
+                this.pointerY = pointer.y;
+        });
 
 
         // setting collisions between the player and the platform group
@@ -169,11 +173,26 @@ class Play extends Phaser.Scene{
         this.platform11.update();
         this.platform12.update();
         this.platform13.update();
+
+        //  stop moving angel if touching pointer
+        if (this.angel.getBounds().contains(this.pointerX, this.pointerY)) {
+            this.angel.setVelocity(0, 0);
+        }
+
+        if(this.angel.body.velocity.x < 0) {
+            this.angel.flipX = true;
+        } else {
+            this.angel.flipX = false;
+        }
     }
 
     // function for clicking a flower pot
     clickPot(pot, pointer){
         pot.destroy();
+
+        this.physics.moveToObject(this.angel, pointer, 550);
+        this.pointerX = pointer.x;
+        this.pointerY = pointer.y;
     }
 
     // function for player collision with flower pot
