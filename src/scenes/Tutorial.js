@@ -10,8 +10,16 @@ class Tutorial extends Phaser.Scene {
         // add background
         this.background = this.add.tileSprite(0, -240, 1280, 960, 'background').setOrigin(0, 0);
 
+        this.backgroundMusic = this.sound.add('tutorialMusic');
+        this.backgroundMusic.setLoop(true);
+        this.backgroundMusic.play();
+
         this.play = this.physics.add.sprite(1000, 600, 'play').setOrigin(0, 0).setInteractive();
-        this.play.on('pointerdown', ()=> {this.scene.start('Play');})
+        this.play.on('pointerdown', ()=> {
+            this.sound.play('sfx_select');
+            this.backgroundMusic.stop();
+            this.scene.start('Play');
+        })
 
     }
 

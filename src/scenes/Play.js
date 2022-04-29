@@ -138,6 +138,10 @@ class Play extends Phaser.Scene{
         this.spawnRate3 = 15;
         this.lastSpawnTime3 = 0;
         this.clock = this.time.addEvent({delay: this.second, callback: this.spawnPot, callbackScope: this, loop: true});
+
+        this.backgroundMusic = this.sound.add('backgroundMusic');
+        this.backgroundMusic.setLoop(true);
+        this.backgroundMusic.play();
     }
 
     update(){
@@ -153,6 +157,8 @@ class Play extends Phaser.Scene{
 
         // game over
         if(gameOver){
+            this.sound.play('gameOver');
+            this.backgroundMusic.stop();
             this.scene.start('GameOver');
         }
 
@@ -188,6 +194,7 @@ class Play extends Phaser.Scene{
 
     // function for clicking a flower pot
     clickPot(pot, pointer){
+        this.sound.play('clickPot');
         pot.destroy();
 
         this.physics.moveToObject(this.angel, pointer, 550);
