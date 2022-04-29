@@ -87,6 +87,12 @@ class Play extends Phaser.Scene{
             frameRate: 10
         });
 
+        this.anims.create({
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('angel', { start: 0, end: 1, first: 0}),
+            frameRate: 10
+        });
+
         this.angel = this.physics.add.sprite(400, 300, 'angel');
         this.input.on('pointermove', (pointer)=>
             {
@@ -136,6 +142,7 @@ class Play extends Phaser.Scene{
         this.background.tilePositionX += 2;
 
         this.player.anims.play('walk', true);
+        this.angel.anims.play('idle', true);
 
         // display score
         this.scoreLeft.text = "Days Survived: " + this.day;
