@@ -9,7 +9,7 @@ let gameConfig = {
     type: Phaser.AUTO,
     width: 1280,
     height: 720,
-    scene: [Play],
+    scene: [Menu, Tutorial, Play, GameOver],
     backgroundColor: 0x444444,
 
     // physics settings

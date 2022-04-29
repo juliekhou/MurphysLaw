@@ -17,7 +17,7 @@ class Play extends Phaser.Scene{
         // load images
         this.load.image("platform", "./assets/platform.png");
         this.load.image("player", "./assets/player.png");
-        this.load.image("background", "./assets/background.png");
+        this.load.image("pot", "./assets/flowerPot.png");
 
         //load sounds
     }
@@ -83,24 +83,6 @@ class Play extends Phaser.Scene{
         // setting collisions between the player and the platform group
         this.physics.add.collider(this.player, this.platformGroup);
 
-        //TODO rewrite
-        // this.drop = 3000;
-        // this.pot1;
-        // this.potClock = this.time.addEvent({
-        //     delay: this.drop,
-        //     callback: () => {
-        //             this.pot1 = new FlowerPot(this, 500, 0, 'player', 0).setOrigin(0,0);
-        //             this.pot1.setGravityY(250);
-        //             this.pot1.setVelocityX(-150);
-        //             this.pot1.setInteractive();
-        //             //checking for input
-        //             this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
-        //             this.physics.add.overlap(this.player, this.pot1, this.hitPot);
-        //         },
-        //     callbackScope: this,
-        //     loop: true
-        // });
-
         // display score
         let scoreConfig = {
             fontFamily: 'Courier',
@@ -144,7 +126,7 @@ class Play extends Phaser.Scene{
 
         // game over
         if(gameOver){
-            this.scene.start("Play");
+            this.scene.start('GameOver');
         }
 
         // NPC's position on the screen
@@ -185,7 +167,8 @@ class Play extends Phaser.Scene{
 
         
         if((this.timer - this.lastSpawnTime1) == this.spawnRate1){
-            this.pot1 = new FlowerPot(this, 500, 0, 'player', 0).setOrigin(0,0);
+            //height: 120 px
+            this.pot1 = new FlowerPot(this, 500, 0, 'pot', 0).setOrigin(0,0);
             //checking for input
             this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
             this.physics.add.overlap(this.player, this.pot1, this.hitPot);
@@ -207,7 +190,7 @@ class Play extends Phaser.Scene{
         this.spawnRateMin2 = 3;
         
         if((this.timer - this.lastSpawnTime2) == this.spawnRate2){
-            this.pot2 = new FlowerPot(this, 800, 0, 'player', 0).setOrigin(0,0);
+            this.pot2 = new FlowerPot(this, 800, 0, 'pot', 0).setOrigin(0,0);
             //checking for input
             this.pot2.on('pointerdown', (pointer)=> {this.clickPot(this.pot2, pointer)});
             this.physics.add.overlap(this.player, this.pot2, this.hitPot);
@@ -227,7 +210,7 @@ class Play extends Phaser.Scene{
         this.spawnRateMin3 = 3;
         
         if((this.timer - this.lastSpawnTime3) == this.spawnRate3){
-            this.pot3 = new FlowerPot(this, 1200, 0, 'player', 0).setOrigin(0,0);
+            this.pot3 = new FlowerPot(this, 1200, 0, 'pot', 0).setOrigin(0,0);
             //checking for input
             this.pot3.on('pointerdown', (pointer)=> {this.clickPot(this.pot3, pointer)});
             this.physics.add.overlap(this.player, this.pot3, this.hitPot);
