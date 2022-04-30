@@ -235,7 +235,7 @@ class Play extends Phaser.Scene{
             this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
             this.physics.add.overlap(this.player, this.pot1, this.hitPot);
             this.pot1.setGravityY(250);
-            this.pot1.setVelocityX(-150);
+            this.pot1.setVelocityX(-175);
             this.pot1.setInteractive();
             this.lastSpawnTime1 = this.timer;
 
@@ -257,7 +257,7 @@ class Play extends Phaser.Scene{
             this.pot2.on('pointerdown', (pointer)=> {this.clickPot(this.pot2, pointer)});
             this.physics.add.overlap(this.player, this.pot2, this.hitPot);
             this.pot2.setGravityY(200);
-            this.pot2.setVelocityX(-250);
+            this.pot2.setVelocityX(-300);
             this.pot2.setInteractive();
             this.lastSpawnTime2 = this.timer;
 
@@ -277,7 +277,7 @@ class Play extends Phaser.Scene{
             this.pot3.on('pointerdown', (pointer)=> {this.clickPot(this.pot3, pointer)});
             this.physics.add.overlap(this.player, this.pot3, this.hitPot);
             this.pot3.setGravityY(200);
-            this.pot3.setVelocityX(-410);
+            this.pot3.setVelocityX(-500);
             this.pot3.setInteractive();
             this.lastSpawnTime3 = this.timer;
 
