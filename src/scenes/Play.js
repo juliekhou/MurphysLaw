@@ -35,59 +35,18 @@ class Play extends Phaser.Scene{
         this.platformGroup = this.add.group({});
 
         // adding a platform to the game, the arguments are platform width and x position
-        this.platformWidth = 105;
-        this.platformHeight = 720 - 77;
+        this.platformWidth = 1280;
+        this.platformHeight = 720 -77;
         this.platform1 = new Platform(this, 0, this.platformHeight, 'platform', 0).setOrigin(0,0);
         this.platform1.setImmovable(true);
-        this.platform2 = new Platform(this, this.platformWidth, this.platformHeight, 'platform', 0).setOrigin(0,0);
+        this.platform2 = new Platform(this, this.platformWidth - 10, this.platformHeight, 'platform', 0).setOrigin(0,0);
         this.platform2.setImmovable(true);
-        this.platform3 = new Platform(this, this.platformWidth*2, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform3.setImmovable(true);
-        this.platform4 = new Platform(this, this.platformWidth*3, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform4.setImmovable(true);
-        this.platform5 = new Platform(this, this.platformWidth*4, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform5.setImmovable(true);
-        this.platform6 = new Platform(this, this.platformWidth*5, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform6.setImmovable(true);
-        this.platform7 = new Platform(this, this.platformWidth*6, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform7.setImmovable(true);
-        this.platform8 = new Platform(this, this.platformWidth*7, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform8.setImmovable(true);
-        this.platform9 = new Platform(this, this.platformWidth*8, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform9.setImmovable(true);
-        this.platform10 = new Platform(this, this.platformWidth*9, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform10.setImmovable(true);
-        this.platform11 = new Platform(this, this.platformWidth*10, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform11.setImmovable(true);
-        this.platform12 = new Platform(this, this.platformWidth*11, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform12.setImmovable(true);
-        this.platform13 = new Platform(this, this.platformWidth*12, this.platformHeight, 'platform', 0).setOrigin(0,0);
-        this.platform13.setImmovable(true);
 
         this.platformGroup.add(this.platform1);
         this.platformGroup.add(this.platform2);
-        this.platformGroup.add(this.platform3);
-        this.platformGroup.add(this.platform4);
-        this.platformGroup.add(this.platform5);
-        this.platformGroup.add(this.platform6);
-        this.platformGroup.add(this.platform7);
-        this.platformGroup.add(this.platform8);
-        this.platformGroup.add(this.platform9);
-        this.platformGroup.add(this.platform10);
-        this.platformGroup.add(this.platform11);
-        this.platformGroup.add(this.platform12);
-        this.platformGroup.add(this.platform13);
 
         // adding the player;
-        // this.player = this.physics.add.sprite(gameOptions.playerStartPosition, this.platformHeight - 55, "player");
         this.player = this.physics.add.sprite(gameOptions.playerStartPosition, this.platformHeight - 55, "player_atlas", "player1");
-        //this.player.setGravityY(gameOptions.playerGravity);
-
-        // this.anims.create({
-        //     key: 'walk',
-        //     frames: this.anims.generateFrameNumbers('player', { start: 0, end: 7, first: 0}),
-        //     frameRate: 10
-        // });
         this.anims.create({ 
             key: 'walk', 
             frames: this.anims.generateFrameNames('player_atlas', {      
@@ -123,16 +82,17 @@ class Play extends Phaser.Scene{
 
         // display score
         let scoreConfig = {
-            fontFamily: 'Courier',
+            fontFamily: 'Verdana',
             fontSize: '28px',
-            backgroundColor: '#A9DEF9',
-            color: '#EDE7B1',
+            backgroundColor: '#FFFFFF',
+            color: '#000000',
             align: 'right',
             padding: {
             top: 5,
             bottom: 5,
             },
-            fixedWidth: 0
+            fixedWidth: 0,
+            fontStyle: 'bold'
         }
         // initialize score
         this.day = 0;
@@ -181,17 +141,6 @@ class Play extends Phaser.Scene{
         // move platforms
         this.platform1.update();
         this.platform2.update();
-        this.platform3.update();
-        this.platform4.update();
-        this.platform5.update();
-        this.platform6.update();
-        this.platform7.update();
-        this.platform8.update();
-        this.platform9.update();
-        this.platform10.update();
-        this.platform11.update();
-        this.platform12.update();
-        this.platform13.update();
 
         //  stop moving angel if touching pointer
         if (this.angel.getBounds().contains(this.pointerX, this.pointerY)) {
