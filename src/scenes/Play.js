@@ -18,7 +18,8 @@ class Play extends Phaser.Scene{
         this.load.image("platform", "./assets/platform.png");
         this.load.image("pot", "./assets/flowerPot.png");
 
-        this.load.spritesheet('player', './assets/player.png', {frameWidth: 50, frameHeight: 120, startFrame: 0, endFrame: 7});
+        // this.load.spritesheet('player', './assets/player.png', {frameWidth: 50, frameHeight: 120, startFrame: 0, endFrame: 7});
+        this.load.atlas('player_atlas', './assets/player.png', './assets/player.json');
         this.load.spritesheet('angel', './assets/angel.png', {frameWidth: 64, frameHeight: 64, startFrame: 0, endFrame: 1});
 
         //load sounds
@@ -78,14 +79,27 @@ class Play extends Phaser.Scene{
         this.platformGroup.add(this.platform13);
 
         // adding the player;
-        this.player = this.physics.add.sprite(gameOptions.playerStartPosition, this.platformHeight - 55, "player");
+        // this.player = this.physics.add.sprite(gameOptions.playerStartPosition, this.platformHeight - 55, "player");
+        this.player = this.physics.add.sprite(gameOptions.playerStartPosition, this.platformHeight - 55, "player_atlas", "player1");
         //this.player.setGravityY(gameOptions.playerGravity);
 
-        this.anims.create({
-            key: 'walk',
-            frames: this.anims.generateFrameNumbers('player', { start: 0, end: 7, first: 0}),
-            frameRate: 10
+        // this.anims.create({
+        //     key: 'walk',
+        //     frames: this.anims.generateFrameNumbers('player', { start: 0, end: 7, first: 0}),
+        //     frameRate: 10
+        // });
+        this.anims.create({ 
+            key: 'walk', 
+            frames: this.anims.generateFrameNames('player_atlas', {      
+                prefix: 'player',
+                start: 1,
+                end: 8,
+                suffix: '',
+            }), 
+            frameRate: 10,
+            repeat: -1 
         });
+        
 
         this.anims.create({
             key: 'idle',
@@ -145,7 +159,6 @@ class Play extends Phaser.Scene{
     }
 
     update(){
-        // this.physics.moveToObject(game.angel, this.pointer, 300);
         // move background
         this.background.tilePositionX += 2;
 

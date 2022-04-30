@@ -17,7 +17,7 @@ class Menu extends Phaser.Scene {
         this.load.image('background', './assets/background.png');
         this.load.spritesheet('title', './assets/title.png', {frameWidth: 700, frameHeight: 700, startFrame: 0, endFrame: 5});
         this.load.spritesheet('tutorial', './assets/tutorial.png', {frameWidth: 500, frameHeight: 110, startFrame: 0, endFrame: 5});
-        this.load.image('play', './assets/play.png');
+        this.load.spritesheet('play', './assets/play.png', {frameWidth: 500, frameHeight: 110, startFrame: 0, endFrame: 5});
     }
 
     create() {
@@ -29,7 +29,7 @@ class Menu extends Phaser.Scene {
         
         // tutorial and play buttons
         this.tutorial = this.physics.add.sprite(390, 450, 'tutorial').setOrigin(0, 0).setInteractive();
-        this.play = this.physics.add.sprite(390, 570, 'tutorial').setOrigin(0, 0).setInteractive();
+        this.play = this.physics.add.sprite(390, 570, 'play').setOrigin(0, 0).setInteractive();
 
         // adding animations
         this.anims.create({
@@ -42,11 +42,11 @@ class Menu extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers('tutorial', { start: 0, end: 4, first: 0}),
             frameRate: 6
         });
-        // this.anims.create({
-        //     key: 'playAnimation',
-        //     frames: this.anims.generateFrameNumbers('tutorial', { start: 0, end: 4, first: 0}),
-        //     frameRate: 6
-        // });
+        this.anims.create({
+            key: 'playAnimation',
+            frames: this.anims.generateFrameNumbers('play', { start: 0, end: 4, first: 0}),
+            frameRate: 6
+        });
 
         // background music
         this.backgroundMusic = this.sound.add('backgroundMusic');
@@ -71,6 +71,6 @@ class Menu extends Phaser.Scene {
     update() {
         this.title.anims.play('titleAnimation', true);
         this.tutorial.anims.play('tutorialAnimation', true);
-        // this.tutorial.anims.play('playAnimation', true);
+        this.play.anims.play('playAnimation', true);
     }
 }

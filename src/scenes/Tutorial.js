@@ -14,7 +14,7 @@ class Tutorial extends Phaser.Scene {
         this.backgroundMusic.setLoop(true);
         this.backgroundMusic.play();
 
-        this.play = this.physics.add.sprite(1000, 600, 'play').setOrigin(0, 0).setInteractive();
+        this.play = this.physics.add.sprite(900, 600, 'play').setOrigin(0, 0).setInteractive();
         this.play.on('pointerdown', ()=> {
             this.sound.play('sfx_select');
             this.backgroundMusic.stop();
