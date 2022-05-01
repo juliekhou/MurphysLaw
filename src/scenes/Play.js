@@ -1,4 +1,3 @@
-// play game scene
 class Play extends Phaser.Scene{
     constructor(){
         super("Play");
@@ -17,6 +16,9 @@ class Play extends Phaser.Scene{
     create(){
         // variable for game over state
         gameOver = false;
+
+        // variable for player being hit state (before game over) (transition state)
+        playerHit = false;
 
         // background
         this.background = this.add.tileSprite(0, -240, 1280, 960, 'background').setOrigin(0, 0);
@@ -158,63 +160,93 @@ class Play extends Phaser.Scene{
 
     // function for clicking a flower pot
     clickPot(pot, pointer){
-        this.sound.play('clickPot');
+        // player can click pot if murphy is not hit
+        if(!playerHit){
 
-        this.physics.moveToObject(this.angel, pointer, 550);
-        this.pointerX = pointer.x;
-        this.pointerY = pointer.y;
+            // play sound
+            this.sound.play('clickPot');
 
+            // move angel to where pointer was clicked
+            this.physics.moveToObject(this.angel, pointer, 550);
+            this.pointerX = pointer.x;
+            this.pointerY = pointer.y;
 
-        pot.destroy();
+            // destroy pot
+            pot.destroy();
 
-        // create poof sprite at pot's position
-        let poof = this.add.sprite(pot.x, pot.y, 'poof').setOrigin(0, 0);
-        // play explode animation
-        poof.anims.play('poof');
-        // callback after anim completes            
-        poof.on('animationcomplete', () => { 
-            // remove explosion sprite                    
-           poof.destroy();      
-           this.clock.paused = false;             
-        });
+            // create poof sprite at pot's position
+            let poof = this.add.sprite(pot.x, pot.y, 'poof').setOrigin(0, 0);
+
+            // play poof animation
+            poof.anims.play('poof');
+
+            // callback after anim completes            
+            poof.on('animationcomplete', () => { 
+                // remove poof sprite                    
+                poof.destroy();      
+                this.clock.paused = false;             
+            });
+        }
     }
 
     // function for player collision with flower pot
     hitPot(pot){
-            this.clock.paused = true;
-            pot.body.stop();
-            pot.body.allowGravity = false;
-            if (!pot.anims.isPlaying) {
-                pot.play("destroy");
-            }
-    
-            this.player.anims.stop();
-    
-            pot.on('animationcomplete', () => {       
-                this.sound.play('gameOver');           
-                gameOver = true;                      
-            });
+        // stops clock & pots from spawning
+        this.clock.paused = true;
+
+        // set player hit to true
+        playerHit = true;
+
+        // stops pot from continuing to move
+        pot.body.stop();
+        pot.body.allowGravity = false;
+
+        // play destroy pot animation once
+        if (!pot.anims.isPlaying) {
+            pot.play("destroy");
+        }
+
+        // stops murphy's animation
+        this.player.anims.stop();
+
+        // set game over to true & plays sound when animation stops
+        pot.on('animationcomplete', () => {       
+            this.sound.play('gameOver');           
+            gameOver = true;                      
+        });
     }
 
     // function for randomly spawning the pots
     spawnPot(){
+        //increase timer
         this.timer += 1;
 
         // pot 1
         this.spawnRateMax1 = 8;
         this.spawnRateMin1 = 4;
 
-        
+        // check if its time to spawn pot 1
         if((this.timer - this.lastSpawnTime1) == this.spawnRate1){
+            // create flower pot 1
             this.pot1 = new FlowerPot(this, 500, 0, 'pot', 0).setOrigin(0,0);
+
+            // add collision b/w player and pot 1
             this.physics.add.overlap(this.player, this.pot1, ()=> {this.hitPot(this.pot1)});
+
             //checking for input
             this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
+
+            // set physics attributes
             this.pot1.setGravityY(250);
             this.pot1.setVelocityX(-175);
+
+            // making pot 1 interactable
             this.pot1.setInteractive();
+
+            // set the last spawn time for pot 1
             this.lastSpawnTime1 = this.timer;
 
+            // setting random spawn rates
             if(day < 0){
                 this.spawnRate1 = 3;
             } else {
@@ -223,46 +255,69 @@ class Play extends Phaser.Scene{
             }
         }
 
-        // pot 2
+        // pot 2 max & min
         this.spawnRateMax2 = 6;
         this.spawnRateMin2 = 3;
         
+        // check if its time to spawn pot 2
         if((this.timer - this.lastSpawnTime2) == this.spawnRate2){
+            // create flower pot 2
             this.pot2 = new FlowerPot(this, 800, 0, 'pot', 0).setOrigin(0,0);
+
             //checking for input
             this.pot2.on('pointerdown', (pointer)=> {this.clickPot(this.pot2, pointer)});
+
+            // add collision b/w player and pot 2
             this.physics.add.overlap(this.player, this.pot2, () => {this.hitPot(this.pot2)});
+
+            // set physics attributes
             this.pot2.setGravityY(200);
             this.pot2.setVelocityX(-300);
+
+            // make pot 2 interactive
             this.pot2.setInteractive();
+
+            // set last spawn time for pot 2
             this.lastSpawnTime2 = this.timer;
 
+            // setting random spawn rates for pot 2
             if(day > 1){
                 this.pot2Chance =  Math.ceil(Math.random() * day);
                 this.spawnRate2 = Math.max(this.spawnRateMax2 - this.pot2Chance, this.spawnRateMin2);
             }
         }
 
-        // pot 3
+        // pot 3 min & max
         this.spawnRateMax3 = 6;
         this.spawnRateMin3 = 3;
         
+        // check if its time to spawn pot 3
         if((this.timer - this.lastSpawnTime3) == this.spawnRate3){
+            // create pot 3
             this.pot3 = new FlowerPot(this, 1200, 0, 'pot', 0).setOrigin(0,0);
+
             //checking for input
             this.pot3.on('pointerdown', (pointer)=> {this.clickPot(this.pot3, pointer)});
+
+            // checking for collision
             this.physics.add.overlap(this.player, this.pot3, () => {this.hitPot(this.pot3)});
+
+            // set physics attributes
             this.pot3.setGravityY(200);
             this.pot3.setVelocityX(-500);
+
+            // make pot 3 interactive
             this.pot3.setInteractive();
+
+            // set last spawn time
             this.lastSpawnTime3 = this.timer;
 
+            // setting random spawn rates
             if(day > 2){
                 this.pot3Chance =  Math.ceil(Math.random() * day);
                 this.spawnRate3 = Math.max(this.spawnRateMax3 - this.pot3Chance, this.spawnRateMin3);
             }
-        }
-        
+        } 
     }
 };
 

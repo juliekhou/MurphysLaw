@@ -13,8 +13,10 @@ class Menu extends Phaser.Scene {
         this.load.audio('tutorialMusic', './assets/tutorial.wav');
         this.load.audio('gameOver', './assets/die.wav');
 
-        // load background
+        // load image
         this.load.image('background', './assets/background.png');
+
+        // load sprite sheet
         this.load.spritesheet('title', './assets/title.png', {frameWidth: 700, frameHeight: 700, startFrame: 0, endFrame: 5});
         this.load.spritesheet('tutorial', './assets/tutorial.png', {frameWidth: 500, frameHeight: 110, startFrame: 0, endFrame: 5});
         this.load.spritesheet('play', './assets/play.png', {frameWidth: 500, frameHeight: 110, startFrame: 0, endFrame: 5});
@@ -53,7 +55,7 @@ class Menu extends Phaser.Scene {
         this.backgroundMusic.setLoop(true);
         this.backgroundMusic.play();
         
-
+        // interactibility for buttons
         this.tutorial.on('pointerdown', ()=> {
             this.sound.play('sfx_select');
             this.backgroundMusic.stop();
@@ -69,6 +71,7 @@ class Menu extends Phaser.Scene {
 
 
     update() {
+        // play animations
         this.title.anims.play('titleAnimation', true);
         this.tutorial.anims.play('tutorialAnimation', true);
         this.play.anims.play('playAnimation', true);
