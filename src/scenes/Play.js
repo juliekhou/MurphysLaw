@@ -6,11 +6,13 @@ class Play extends Phaser.Scene{
     preload(){
         // load images
         this.load.image("platform", "./assets/platform.png");
-        this.load.image("pot", "./assets/flowerPot.png");
+        // this.load.image("pot", "./assets/flowerPot.png");
 
-        // this.load.spritesheet('player', './assets/player.png', {frameWidth: 50, frameHeight: 120, startFrame: 0, endFrame: 7});
+        // load spritesheets
         this.load.atlas('player_atlas', './assets/player.png', './assets/player.json');
         this.load.spritesheet('angel', './assets/angel.png', {frameWidth: 64, frameHeight: 64, startFrame: 0, endFrame: 1});
+        this.load.spritesheet('poof', './assets/potPoof.png', {frameWidth: 76, frameHeight: 140, startFrame: 0, endFrame: 6});
+        this.load.spritesheet('pot', './assets/pot.png', {frameWidth: 64, frameHeight: 128, startFrame: 0, endFrame: 8});
     }
     create(){
         // variable for game over state
@@ -66,6 +68,17 @@ class Play extends Phaser.Scene{
                 this.pointerY = pointer.y;
         });
 
+        // adding flower pot animations
+        this.anims.create({
+            key: 'poof',
+            frames: this.anims.generateFrameNumbers('poof', { start: 0, end: 6, first: 0}),
+            frameRate: 15
+        });
+        this.anims.create({
+            key: 'destroy',
+            frames: this.anims.generateFrameNumbers('pot', { start: 0, end: 8, first: 0}),
+            frameRate: 15
+        });
 
         // setting collisions between the player and the platform group
         this.physics.add.collider(this.player, this.platformGroup);
@@ -119,7 +132,6 @@ class Play extends Phaser.Scene{
 
         // game over
         if(gameOver){
-            this.sound.play('gameOver');
             this.backgroundMusic.stop();
             this.scene.start('GameOver');
         }
@@ -147,16 +159,41 @@ class Play extends Phaser.Scene{
     // function for clicking a flower pot
     clickPot(pot, pointer){
         this.sound.play('clickPot');
-        pot.destroy();
 
         this.physics.moveToObject(this.angel, pointer, 550);
         this.pointerX = pointer.x;
         this.pointerY = pointer.y;
+
+
+        pot.destroy();
+
+        // create poof sprite at pot's position
+        let poof = this.add.sprite(pot.x, pot.y, 'poof').setOrigin(0, 0);
+        // play explode animation
+        poof.anims.play('poof');
+        // callback after anim completes            
+        poof.on('animationcomplete', () => { 
+            // remove explosion sprite                    
+           poof.destroy();      
+           this.clock.paused = false;             
+        });
     }
 
     // function for player collision with flower pot
-    hitPot(){
-        gameOver = true;
+    hitPot(pot){
+            this.clock.paused = true;
+            pot.body.stop();
+            pot.body.allowGravity = false;
+            if (!pot.anims.isPlaying) {
+                pot.play("destroy");
+            }
+    
+            this.player.anims.stop();
+    
+            pot.on('animationcomplete', () => {       
+                this.sound.play('gameOver');           
+                gameOver = true;                      
+            });
     }
 
     // function for randomly spawning the pots
@@ -170,9 +207,9 @@ class Play extends Phaser.Scene{
         
         if((this.timer - this.lastSpawnTime1) == this.spawnRate1){
             this.pot1 = new FlowerPot(this, 500, 0, 'pot', 0).setOrigin(0,0);
+            this.physics.add.overlap(this.player, this.pot1, ()=> {this.hitPot(this.pot1)});
             //checking for input
             this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
-            this.physics.add.overlap(this.player, this.pot1, this.hitPot);
             this.pot1.setGravityY(250);
             this.pot1.setVelocityX(-175);
             this.pot1.setInteractive();
@@ -194,7 +231,7 @@ class Play extends Phaser.Scene{
             this.pot2 = new FlowerPot(this, 800, 0, 'pot', 0).setOrigin(0,0);
             //checking for input
             this.pot2.on('pointerdown', (pointer)=> {this.clickPot(this.pot2, pointer)});
-            this.physics.add.overlap(this.player, this.pot2, this.hitPot);
+            this.physics.add.overlap(this.player, this.pot2, () => {this.hitPot(this.pot2)});
             this.pot2.setGravityY(200);
             this.pot2.setVelocityX(-300);
             this.pot2.setInteractive();
@@ -214,7 +251,7 @@ class Play extends Phaser.Scene{
             this.pot3 = new FlowerPot(this, 1200, 0, 'pot', 0).setOrigin(0,0);
             //checking for input
             this.pot3.on('pointerdown', (pointer)=> {this.clickPot(this.pot3, pointer)});
-            this.physics.add.overlap(this.player, this.pot3, this.hitPot);
+            this.physics.add.overlap(this.player, this.pot3, () => {this.hitPot(this.pot3)});
             this.pot3.setGravityY(200);
             this.pot3.setVelocityX(-500);
             this.pot3.setInteractive();
