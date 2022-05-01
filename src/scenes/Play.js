@@ -1,13 +1,3 @@
-// global game options
-// move this to menu.js
-let gameOptions = {
-    playerGravity: 900,
-    playerStartPosition: 200
-}
-
-let gameOver = false;
-
-
 // play game scene
 class Play extends Phaser.Scene{
     constructor(){
@@ -21,8 +11,6 @@ class Play extends Phaser.Scene{
         // this.load.spritesheet('player', './assets/player.png', {frameWidth: 50, frameHeight: 120, startFrame: 0, endFrame: 7});
         this.load.atlas('player_atlas', './assets/player.png', './assets/player.json');
         this.load.spritesheet('angel', './assets/angel.png', {frameWidth: 64, frameHeight: 64, startFrame: 0, endFrame: 1});
-
-        //load sounds
     }
     create(){
         // variable for game over state
@@ -31,7 +19,7 @@ class Play extends Phaser.Scene{
         // background
         this.background = this.add.tileSprite(0, -240, 1280, 960, 'background').setOrigin(0, 0);
 
-        // // group with all active platforms.
+        // group for platforms
         this.platformGroup = this.add.group({});
 
         // adding a platform to the game, the arguments are platform width and x position
@@ -42,11 +30,13 @@ class Play extends Phaser.Scene{
         this.platform2 = new Platform(this, this.platformWidth - 10, this.platformHeight, 'platform', 0).setOrigin(0,0);
         this.platform2.setImmovable(true);
 
+        // adding platforms to platform group
         this.platformGroup.add(this.platform1);
         this.platformGroup.add(this.platform2);
 
-        // adding the player;
-        this.player = this.physics.add.sprite(gameOptions.playerStartPosition, this.platformHeight - 55, "player_atlas", "player1");
+        // adding the player
+        this.playerStartPosition = 200;
+        this.player = this.physics.add.sprite(this.playerStartPosition, this.platformHeight - 55, "player_atlas", "player1");
         this.anims.create({ 
             key: 'walk', 
             frames: this.anims.generateFrameNames('player_atlas', {      
@@ -59,17 +49,17 @@ class Play extends Phaser.Scene{
             repeat: -1 
         });
         
-
+        // adding the angel
+        this.angel = this.physics.add.sprite(400, 300, 'angel');
         this.anims.create({
             key: 'idle',
             frames: this.anims.generateFrameNumbers('angel', { start: 0, end: 1, first: 0}),
             frameRate: 10
         });
 
+        // angel to follow pointer when the pointer is clicked
         this.pointerX;
         this.pointerY;
-
-        this.angel = this.physics.add.sprite(400, 300, 'angel');
         this.input.on('pointerdown', (pointer)=> {
                 this.physics.moveToObject(this.angel, pointer, 550);
                 this.pointerX = pointer.x;
@@ -87,22 +77,19 @@ class Play extends Phaser.Scene{
             backgroundColor: '#FFFFFF',
             color: '#000000',
             align: 'right',
-            padding: {
-            top: 5,
-            bottom: 5,
-            },
+            padding: 5,
             fixedWidth: 0,
             fontStyle: 'bold'
         }
         // initialize score
-        this.day = 0;
-        this.scoreLeft = this.add.text(0, 50, "Days Survived: " + this.day, scoreConfig);
+        day = 0;
+        this.scoreLeft = this.add.text(0, 50, "Days Survived: " + day, scoreConfig);
         
         // days survived clock
         this.dayLength = 10000;
-        this.clock = this.time.addEvent({delay: this.dayLength, callback: () => {this.day += 1;}, callbackScope: this, loop: true});
+        this.clock = this.time.addEvent({delay: this.dayLength, callback: () => {day += 1;}, callbackScope: this, loop: true});
 
-        // days survived clock
+        // clock to randomly spawn the pots
         this.second = 1000;
         this.timer = 0;
         this.spawnRate1 = 3;
@@ -113,6 +100,7 @@ class Play extends Phaser.Scene{
         this.lastSpawnTime3 = 0;
         this.clock = this.time.addEvent({delay: this.second, callback: this.spawnPot, callbackScope: this, loop: true});
 
+        // looping background music
         this.backgroundMusic = this.sound.add('backgroundMusic');
         this.backgroundMusic.setLoop(true);
         this.backgroundMusic.play();
@@ -122,11 +110,12 @@ class Play extends Phaser.Scene{
         // move background
         this.background.tilePositionX += 2;
 
+        // play animations
         this.player.anims.play('walk', true);
         this.angel.anims.play('idle', true);
 
         // display score
-        this.scoreLeft.text = "Days Survived: " + this.day;
+        this.scoreLeft.text = "Days Survived: " + day;
 
         // game over
         if(gameOver){
@@ -136,7 +125,7 @@ class Play extends Phaser.Scene{
         }
 
         // NPC's position on the screen
-        this.player.x = gameOptions.playerStartPosition;
+        this.player.x = this.playerStartPosition;
 
         // move platforms
         this.platform1.update();
@@ -147,6 +136,7 @@ class Play extends Phaser.Scene{
             this.angel.setVelocity(0, 0);
         }
 
+        // if angel is moving to the left, the sprite is flipped
         if(this.angel.body.velocity.x < 0) {
             this.angel.flipX = true;
         } else {
@@ -169,6 +159,7 @@ class Play extends Phaser.Scene{
         gameOver = true;
     }
 
+    // function for randomly spawning the pots
     spawnPot(){
         this.timer += 1;
 
@@ -178,7 +169,6 @@ class Play extends Phaser.Scene{
 
         
         if((this.timer - this.lastSpawnTime1) == this.spawnRate1){
-            //height: 120 px
             this.pot1 = new FlowerPot(this, 500, 0, 'pot', 0).setOrigin(0,0);
             //checking for input
             this.pot1.on('pointerdown', (pointer)=> {this.clickPot(this.pot1, pointer)});
@@ -188,10 +178,10 @@ class Play extends Phaser.Scene{
             this.pot1.setInteractive();
             this.lastSpawnTime1 = this.timer;
 
-            if(this.day < 0){
+            if(day < 0){
                 this.spawnRate1 = 3;
             } else {
-                this.pot1Chance =  Math.ceil(Math.random() * this.day);
+                this.pot1Chance =  Math.ceil(Math.random() * day);
                 this.spawnRate1 = Math.max(this.spawnRateMax1 - this.pot1Chance, this.spawnRateMin1);
             }
         }
@@ -210,8 +200,8 @@ class Play extends Phaser.Scene{
             this.pot2.setInteractive();
             this.lastSpawnTime2 = this.timer;
 
-            if(this.day > 1){
-                this.pot2Chance =  Math.ceil(Math.random() * this.day);
+            if(day > 1){
+                this.pot2Chance =  Math.ceil(Math.random() * day);
                 this.spawnRate2 = Math.max(this.spawnRateMax2 - this.pot2Chance, this.spawnRateMin2);
             }
         }
@@ -230,8 +220,8 @@ class Play extends Phaser.Scene{
             this.pot3.setInteractive();
             this.lastSpawnTime3 = this.timer;
 
-            if(this.day > 2){
-                this.pot3Chance =  Math.ceil(Math.random() * this.day);
+            if(day > 2){
+                this.pot3Chance =  Math.ceil(Math.random() * day);
                 this.spawnRate3 = Math.max(this.spawnRateMax3 - this.pot3Chance, this.spawnRateMin3);
             }
         }

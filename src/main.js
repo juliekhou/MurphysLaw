@@ -27,3 +27,8 @@ let gameConfig = {
 
 // create new game
 game = new Phaser.Game(gameConfig);
+
+// player score declaration
+let day;
+// game over state variable declaration
+let gameOver;
